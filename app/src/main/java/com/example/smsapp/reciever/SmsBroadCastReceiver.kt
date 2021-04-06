@@ -19,7 +19,7 @@ import com.example.smsapp.ui.home.MainActivity
 import com.example.smsapp.utils.LOCAL_SMS_NOTIFIER
 import com.example.smsapp.utils.NOTIFICATION_CHANNEL_ID_PRIMARY
 
-class SmsReceiver : BroadcastReceiver() {
+class SmsBroadCastReceiver : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceive(context: Context, intent: Intent) {

@@ -2,5 +2,4 @@
 <layoutAnimation
     android:animation="@anim/slide_up_animation"
     android:animationOrder="normal"
-    android:delay="15%"
     xmlns:android="http://schemas.android.com/apk/res/android" />

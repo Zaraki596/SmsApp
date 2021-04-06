@@ -3,12 +3,12 @@ package com.example.smsapp.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.smsapp.R
 import com.example.smsapp.data.model.ViewItem
+import com.example.smsapp.databinding.ItemDateHeaderBinding
+import com.example.smsapp.databinding.ItemSmsBinding
 import com.example.smsapp.utils.checkTimeRange
 
 class SmsListAdapter() :
@@ -36,12 +36,14 @@ class SmsListAdapter() :
         fun bind(item: ViewItem) = with(itemView) {
             when (item) {
                 is ViewItem.SMSItem -> {
-                    this.findViewById<TextView>(R.id.tvBody).text = item.smsItem.body
-                    this.findViewById<TextView>(R.id.tvNumber).text = item.smsItem.number
-                    this.findViewById<TextView>(R.id.tvDate).text = item.smsItem.formattedDate
+                    val binding = ItemSmsBinding.bind(this)
+                    binding.tvBody.text = item.smsItem.body
+                    binding.tvNumber.text = item.smsItem.number
+                    binding.tvDate.text = item.smsItem.formattedDate
                 }
                 is ViewItem.DateItem -> {
-                    this.findViewById<TextView>(R.id.tvHoursPassed).text =
+                    val binding = ItemDateHeaderBinding.bind(this)
+                    binding.tvHoursPassed.text =
                         checkTimeRange(item.hoursItem.hoursPassed)
 
                 }

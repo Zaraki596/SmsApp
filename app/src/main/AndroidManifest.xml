@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <receiver
-            android:name=".reciever.SmsReceiver"
+            android:name=".reciever.SmsBroadCastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
