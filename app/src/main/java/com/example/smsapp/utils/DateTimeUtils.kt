@@ -50,7 +50,7 @@ fun checkTimeRangeLong(hours: Long): Long {
 fun checkTimeRange(hours: Long): String {
     return when (hours.toInt()) {
         0 -> {
-            "Few moments ago"
+            "In the last hour"
         }
         1 -> {
             "1 hours ago"

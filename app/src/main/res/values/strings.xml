@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SmsApp</string>
+    <string name="error_sms_permissions">Please allow all permissions</string>
 </resources>

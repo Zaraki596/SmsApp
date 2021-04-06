@@ -1,4 +1,4 @@
-package com.example.smsapp.ui
+package com.example.smsapp.ui.home
 
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -6,20 +6,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Telephony
-import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.smsapp.data.model.HoursItem
-import com.example.smsapp.data.model.SmsItem
-import com.example.smsapp.data.model.ViewItem
+import com.example.smsapp.R
 import com.example.smsapp.databinding.ActivityMainBinding
 import com.example.smsapp.ui.adapter.SmsListAdapter
-import com.example.smsapp.utils.*
+import com.example.smsapp.utils.LOCAL_SMS_NOTIFIER
+import com.example.smsapp.utils.showToast
+import com.example.smsapp.utils.viewBinding
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,21 +26,23 @@ class MainActivity : AppCompatActivity() {
 
     private val adapter by lazy { SmsListAdapter() }
 
+    private val smsViewModel: SmsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         getPermissions()
+        initViews()
     }
 
-
-    override fun onStart() {
-        super.onStart()
-        this.registerUnRegisterNetworkReceiver(true)
-    }
-
-    override fun onStop() {
-        this.registerUnRegisterNetworkReceiver(false)
-        super.onStop()
+    private fun initViews() {
+        binding.rvSmsList.adapter = adapter
+        smsViewModel.smsListLiveData.observe(this) {
+            adapter.swapData(it)
+        }
+        smsViewModel.errorToastEvent.observe(this) {
+            showToast("No Message to show")
+        }
     }
 
     private fun registerUnRegisterNetworkReceiver(register: Boolean) {
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                 REQUEST_SMS_CODE
             )
         } else {
-            getAllSms()
+            smsViewModel.getAllSms()
         }
     }
 
@@ -89,56 +89,21 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_SMS_CODE && !checkPermissions()) {
-            getAllSms()
+            smsViewModel.getAllSms()
         } else {
-            Toast.makeText(this, "Please allow all permissions", Toast.LENGTH_LONG).show()
+            showToast(R.string.error_sms_permissions)
             finish()
         }
     }
 
-    fun getAllSms() {
-        val smsListItem = mutableListOf<ViewItem>()
-        val contentResolver = this.contentResolver
-        val uri = Uri.parse("content://sms/inbox")
-        val cursor = contentResolver.query(uri, null, null, null, null)
-        var totalSms = 0
-        var lastHour: Long = -1
-        if (cursor != null) {
-            totalSms = cursor.count
-            if (cursor.moveToFirst()) {
+    override fun onStart() {
+        super.onStart()
+        this.registerUnRegisterNetworkReceiver(true)
+    }
 
-                for (sms in 1..totalSms) {
-                    val smsDate = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE))
-                    val number =
-                        cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS))
-                    val body = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY))
-                    val dateFormat = convertLongToTime(smsDate.toLong())
-                    val hours = getRemainingTimeInHours(smsDate.toLong())
-                    val passedHours = checkTimeRangeLong(hours)
-
-                    val smsItem = SmsItem(
-                        smsDate = smsDate.toLong(),
-                        body = body,
-                        number = number,
-                        formattedDate = dateFormat,
-                        hours = hours
-                    )
-
-                    if (lastHour != passedHours) {
-                        lastHour = passedHours
-                        val hoursItem = HoursItem(hoursPassed = passedHours)
-                        smsListItem.add(ViewItem.DateItem(hoursItem))
-                    }
-                    smsListItem.add(ViewItem.SMSItem(smsItem))
-                    cursor.moveToNext()
-                }
-            }
-            cursor.close()
-            binding.rvSmsList.adapter = adapter
-            adapter.swapData(smsListItem)
-        } else {
-            Toast.makeText(this, "No message to Show", Toast.LENGTH_SHORT).show()
-        }
+    override fun onStop() {
+        this.registerUnRegisterNetworkReceiver(false)
+        super.onStop()
     }
 
     companion object {
@@ -148,7 +113,7 @@ class MainActivity : AppCompatActivity() {
     private val smsReceiverNotifier = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent != null) {
-                this@MainActivity.getAllSms()
+                smsViewModel.getAllSms()
             }
         }
     }

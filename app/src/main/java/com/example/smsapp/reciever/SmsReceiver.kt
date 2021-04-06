@@ -15,7 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.smsapp.R
-import com.example.smsapp.ui.MainActivity
+import com.example.smsapp.ui.home.MainActivity
 import com.example.smsapp.utils.LOCAL_SMS_NOTIFIER
 import com.example.smsapp.utils.NOTIFICATION_CHANNEL_ID_PRIMARY
 
