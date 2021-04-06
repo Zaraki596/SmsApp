@@ -19,10 +19,7 @@ import com.example.smsapp.data.model.SmsItem
 import com.example.smsapp.data.model.ViewItem
 import com.example.smsapp.databinding.ActivityMainBinding
 import com.example.smsapp.ui.adapter.SmsListAdapter
-import com.example.smsapp.utils.LOCAL_SMS_NOTIFIER
-import com.example.smsapp.utils.convertLongToTime
-import com.example.smsapp.utils.getRemainingTimeInHours
-import com.example.smsapp.utils.viewBinding
+import com.example.smsapp.utils.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -117,6 +114,7 @@ class MainActivity : AppCompatActivity() {
                     val body = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY))
                     val dateFormat = convertLongToTime(smsDate.toLong())
                     val hours = getRemainingTimeInHours(smsDate.toLong())
+                    val passedHours = checkTimeRangeLong(hours)
 
                     val smsItem = SmsItem(
                         smsDate = smsDate.toLong(),
@@ -126,9 +124,9 @@ class MainActivity : AppCompatActivity() {
                         hours = hours
                     )
 
-                    if (lastHour != hours) {
-                        lastHour = hours
-                        val hoursItem = HoursItem(hoursPassed = hours)
+                    if (lastHour != passedHours) {
+                        lastHour = passedHours
+                        val hoursItem = HoursItem(hoursPassed = passedHours)
                         smsListItem.add(ViewItem.DateItem(hoursItem))
                     }
                     smsListItem.add(ViewItem.SMSItem(smsItem))
@@ -145,7 +143,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val REQUEST_SMS_CODE = 1
-        private const val MY_PERMISSIONS_REQUEST_SMS_RECEIVE = 10
     }
 
     private val smsReceiverNotifier = object : BroadcastReceiver() {

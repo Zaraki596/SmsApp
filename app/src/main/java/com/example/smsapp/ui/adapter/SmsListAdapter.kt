@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smsapp.R
 import com.example.smsapp.data.model.ViewItem
+import com.example.smsapp.utils.checkTimeRange
 
 class SmsListAdapter() :
     ListAdapter<ViewItem, SmsListAdapter.SmsListViewHolder>(SmsItemDC()) {
@@ -41,7 +42,7 @@ class SmsListAdapter() :
                 }
                 is ViewItem.DateItem -> {
                     this.findViewById<TextView>(R.id.tvHoursPassed).text =
-                        "${item.hoursItem.hoursPassed} hours ago"
+                        checkTimeRange(item.hoursItem.hoursPassed)
 
                 }
             }
