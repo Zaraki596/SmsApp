@@ -6,8 +6,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
+import android.os.Build
 import android.telephony.SmsMessage
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -18,31 +20,32 @@ import com.example.smsapp.utils.LOCAL_SMS_NOTIFIER
 import com.example.smsapp.utils.NOTIFICATION_CHANNEL_ID_PRIMARY
 
 class SmsReceiver : BroadcastReceiver() {
+
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == SMS_RECEIVED) {
             val bundle = intent.extras
-            if (bundle != null) {
-                // get sms objects
-                val pdus = bundle["pdus"] as Array<Any>?
-                if (pdus!!.isEmpty()) {
-                    return
-                }
-                // large message might be broken into many
-                val messages = arrayOfNulls<SmsMessage>(
-                    pdus.size
-                )
-                val sb = StringBuilder()
-                for (i in pdus.indices) {
-                    messages[i] = SmsMessage.createFromPdu(pdus[i] as ByteArray)
-                    sb.append(messages[i]?.messageBody)
-                }
-                val sender = messages[0]!!.originatingAddress ?: "No sender Found"
-                val message = sb.toString()
-                showNotification(context, sender, message)
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                // prevent any other broadcast receivers from receiving broadcast
-                // abortBroadcast();
+            val msgs: Array<SmsMessage?>
+            val sb = StringBuilder()
+            val format = bundle!!.getString(MSG_FORMAT_KEY)
+            // get sms objects
+            val pdus = bundle[KEY_PDUS] as Array<Any>?
+
+            if (pdus!!.isEmpty()) {
+                return
             }
+            // large message might be broken into many
+            msgs = arrayOfNulls(pdus.size)
+            for (i in pdus.indices) {
+
+                msgs[i] = SmsMessage.createFromPdu(pdus[i] as ByteArray, format)
+                sb.append(msgs[i]?.messageBody)
+            }
+            val sender = msgs[0]!!.originatingAddress ?: "No sender Found"
+            val message = sb.toString()
+            showNotification(context, sender, message)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+
         }
     }
 
@@ -80,6 +83,8 @@ class SmsReceiver : BroadcastReceiver() {
     }
 
     companion object {
+        private const val KEY_PDUS = "pdus"
+        private const val MSG_FORMAT_KEY = "format"
         private const val SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED"
     }
 }
