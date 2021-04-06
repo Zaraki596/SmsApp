@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         binding.rvSmsList.adapter = adapter
         smsViewModel.smsListLiveData.observe(this) {
             adapter.swapData(it)
+            binding.rvSmsList.scheduleLayoutAnimation()
         }
         smsViewModel.errorToastEvent.observe(this) {
             showToast("No Message to show")
