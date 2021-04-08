@@ -8,7 +8,6 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
 import android.telephony.SmsMessage
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -44,8 +43,6 @@ class SmsBroadCastReceiver : BroadcastReceiver() {
             val sender = msgs[0]!!.originatingAddress ?: "No sender Found"
             val message = sb.toString()
             showNotification(context, sender, message)
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-
         }
     }
 
